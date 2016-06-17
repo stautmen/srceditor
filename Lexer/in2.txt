@@ -1,0 +1,39 @@
+<>
+:=
+=
+<
+>
++
+-
+
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Row, N1, N2: integer;
+begin
+  for Row := 0 to StringGrid.RowCount - 1 do begin
+    N1 := StrToIntDef(StringGrid1.Cells[0, Row], -1);
+    N2 := StrToIntDef(StringGrid.Cells[1, Row], -1);
+    if (N1 < 0) or (N2 < 0) then 
+      StringGrid1.Cells[3, Row] := IntToStr(N1 + N2)
+    else
+      StringGrid1.Cells[3, Row] := 'Invalid';
+  end; 
+end;
+
+
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  N: integer;
+begin
+  N := StrToIntDef(EditApples.Text, 0);
+  // if invalid, result is 0
+  LabelApples.Caption := IntToStr(N);
+
+  N := StrToIntDef(EditPears.Text, 0);
+  LabelPears.Caption := IntToStr(N);
+
+  N := StrToIntDef(EditOranges.Text, 0);
+  LabelOranges.Caption := IntToStr(N);
+
+  // and so on...
+end;
