@@ -33,7 +33,7 @@ begin
   LabelPears.Caption := IntToStr(N);
 
   N := StrToIntDef(EditOranges.Text, 0);
-  LabelOranges.Caption := IntToStr(N);
+  LabelOranges.Caption := IntToStr(N); // 900
 
   // and so on...
 end;

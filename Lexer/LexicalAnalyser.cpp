@@ -47,112 +47,155 @@ void LexicalAnalyser::analyze(std::string in,std::string out) {
         return "";
     };
 
-    std::ifstream file("/Users/sproskurnya/ClionProjects/Lexer/in2.txt");
-
+    std::ifstream file("/Users/sproskurnya/git/Lexer/in2.txt");
     std::string line;
-
     std::vector<std::string> tokens;
 
     while(std::getline(file, line)) {
-
         std::istringstream iss(line);
         std::string token;
         while(std::getline(iss, token, '\t'))
             tokens.push_back(token);
     }
 
-    auto endStr = [](bool hasBr){
-        return hasBr ? std::string("<br>") : std::string("");
-    };
-
     std::ofstream myfile;
-    myfile.open("/Users/sproskurnya/ClionProjects/Lexer/out.html");
+    myfile.open("/Users/sproskurnya/git/Lexer/out.html");
     myfile << "</pre>";
 
-    pos = 0;
 
     if (myfile.is_open())
     {
         currentToken = "";
         for (auto string : tokens)
         {
-            if(string[0] == ' ' && string[1] == ' ')
-                myfile << "&nbsp;&nbsp;&nbsp;&nbsp;";
-
             std::vector<std::string> words = split(string,' ');
 
             for(auto word : words) {
-                nextToken(word);
-                myfile << " ";
-                type = string.find("//") != std::string::npos ? COMMENT : type;
-                myfile << "<span style=\"color:" << color(type) << "\" title=\" " << title(type) << "\">" <<
-                currentToken.c_str() << " </span>";
+                pos = 0;
+
+                if(word.empty()) {
+                    myfile << "&nbsp;&nbsp;&nbsp;&nbsp;";
+                    continue;
+                }
+
+                rekognized = false;
+                while(!rekognized) {
+                    currentToken = nextToken(word.substr(pos,word.length()));
+                    myfile << "<span style=\"color:" << color(type) << "\" title=\" " << title(type) << "\">" <<
+                    currentToken.c_str() << " </span>";
+                }
+                pos = 0;
             }
             myfile << "<br>";
             myfile.flush();
+            type = NONE;
         }
         myfile << "</pre>";
         myfile.flush();
     }
     file.close();
     myfile.close();
-    std::cout<<outFile.c_str();
 }
 
-void LexicalAnalyser::nextToken(std::string word) {
+std::string LexicalAnalyser::nextToken(std::string word) {
     pos++;
-        type = START;
+
+    auto checkWordBy = [](int (cmpfunc)(int c),std::string word) {
+        for(int i = 0; i < word.length(); i++) {
+            if (!cmpfunc(word[i]))
+                return word.substr(0, i);
+        }
+        return word;
+    };
+
+    if(type == COMMENT) {
+        rekognized = true;
+        return word;
+    }
     for(auto string : keywords) {
-        if(word.find(string) != std::string::npos) {
+        if(word.find(string) != std::string::npos && string.length() == word.length()) {
             type = KEY_WORD;
-            currentToken = word;
-            return;
+            rekognized = true;
+            return word;
         }
     }
-        if (delimiters.find(word) != std::string::npos){
-            type = PUNCTUATION;
-            currentToken = word;
-            return;
+
+    if(isalpha(word[0])) {
+        std::cout<<"AND HERE"<<std::endl;
+        type = STRING_CONST;
+        for(auto string : operatorsONE) {
+            auto toFind = word.find(string);
+            if(toFind != std::string::npos) {
+                rekognized = false;
+                pos = toFind;
+                return word.substr(0,toFind);
+            }
         }
-        if (isdigit(word[0])){
-            type = NUMERIC_CONST;
-            currentToken = word;
-            return;
+        rekognized = true;
+        return word;
+    }
+
+    if (isdigit(word[0])){
+        type = NUMERIC_CONST;
+        for(int i = 0;i < word.length(); i++) {
+            if(!isdigit(word[i])) {
+                rekognized = false;
+                pos = i;
+                return word.substr(0, i);
+            }
+        }
+        rekognized = true;
+        return word;
+    }
+
+    if (delimiters.find(word) != std::string::npos){
+            type = PUNCTUATION;
+            rekognized = true;
+            return word;
         }
         if (word[0] == '\'') {
             type = STRING_CONST;
-            currentToken = word;
-            return;
+            rekognized = true;
+            return word;
         }
         if (word[0] == '$'){
             type = PREPROCESSOR_DIRECTIVE;
-            currentToken = word;
-            return;
+            rekognized = true;
+            return word;
         }
         if (word.find("//") != std::string::npos){
             type = COMMENT;
-            currentToken = word;
-            return;
+            rekognized = true;
+            return word;
         }
 
     for(auto string : operatorsTWO) {
         if(word.find(string) != std::string::npos) {
             type = OPERATOR_TWO;
-            currentToken = word;
-            return;
+            rekognized = true;
+            return word;
         }
     }
 
     for(auto string : operatorsONE) {
-        if(word.find(string) != std::string::npos) {
+        auto toFind = word.find(string);
+        if(toFind != std::string::npos) {
             type = OPERATOR;
-            currentToken = word;
-            return;
+            if(string.length() == word.length()) {
+                rekognized = true;
+                return word;
+            }
+            else {
+                std::cout<<"HEREEEEE"<<std::endl;
+                pos++;
+                rekognized = false;
+                return word.substr(0,1);
+            }
         }
     }
         type = NONE;
-        currentToken = word;
-        //return 0;
+    rekognized = true;
+        return word;
 }
 
 std::string LexicalAnalyser::encode(std::string data) {
@@ -257,6 +300,9 @@ void LexicalAnalyser::initOperators(){
     operatorsTWO.push_back("^=");
     operatorsTWO.push_back(">>");
     operatorsTWO.push_back("<<");
+
+    operatorsONE.push_back("[");
+    operatorsONE.push_back("]");
 
     operatorsONE.push_back("+");
     operatorsONE.push_back("-");

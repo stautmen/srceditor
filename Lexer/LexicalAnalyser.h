@@ -12,11 +12,11 @@ enum Keys { START, COMMENT, PREPROCESSOR_DIRECTIVE, NUMERIC_CONST, STRING_CONST,
 
 class LexicalAnalyser {
 public:
-    LexicalAnalyser() {}
+    LexicalAnalyser() { rekognized = false; }
     ~LexicalAnalyser() {}
 
     void analyze(std::string,std::string);
-    void nextToken(std::string);
+    std::string nextToken(std::string);
 
 private:
     std::list<std::string> keywords;
@@ -29,6 +29,7 @@ private:
     int type;
     std::string buffer;
     int pos;
+    bool rekognized;
 
     void initKeywords();
     void initDelimiters();
