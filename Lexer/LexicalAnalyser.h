@@ -22,7 +22,7 @@ private:
     std::list<std::string> keywords;
     std::list<std::string> operatorsONE;
     std::list<std::string> operatorsTWO;
-    std::string delimiters;
+    std::list<std::string> delimiters;
     std::string inFile,outFile;
 
     std::string currentToken;
