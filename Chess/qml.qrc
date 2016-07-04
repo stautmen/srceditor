@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>screenOne.qml</file>
+        <file>screenTwo.qml</file>
+        <file>screenThree.qml</file>
+    </qresource>
+    <qresource prefix="/chesspieces">
+        <file>img/rookWhite.png</file>
+        <file>img/queenWhite.png</file>
+        <file>img/pawnWhite.png</file>
+        <file>img/knightWhite.png</file>
+        <file>img/kingWhite.png</file>
+        <file>img/bishopWhite.png</file>
+        <file>img/rookBlack.png</file>
+        <file>img/queenBlack.png</file>
+        <file>img/pawnBlack.png</file>
+        <file>img/knightBlack.png</file>
+        <file>img/kingBlack.png</file>
+        <file>img/bishopBlack.png</file>
+    </qresource>
+</RCC>
